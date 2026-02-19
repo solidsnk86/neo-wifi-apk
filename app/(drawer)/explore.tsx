@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 
@@ -12,9 +12,11 @@ export default function AboutScreen() {
     >
       <View style={styles.header}>
         <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name="wifi-marker" size={44} color="#fff" />
+          <Image
+            source={require("../../assets/images/neo-wifi-logo-comp.png")}
+            style={{ width: 120, height: 100 }}
+          />
         </View>
-        <ThemedText style={styles.appName}>Neo WiFi</ThemedText>
         <ThemedText style={styles.version}>Versión 1.0.0</ThemedText>
       </View>
 
@@ -83,25 +85,6 @@ export default function AboutScreen() {
       </View>
 
       <View style={styles.card}>
-        <ThemedText style={styles.cardTitle}>Tecnologías</ThemedText>
-        <View style={styles.techGrid}>
-          {[
-            "React Native",
-            "Expo SDK 54",
-            "TypeScript",
-            "Google Maps",
-            "expo-location",
-            "expo-router",
-            "Haversine",
-          ].map((tech, i) => (
-            <View key={i} style={styles.techChip}>
-              <ThemedText style={styles.techText}>{tech}</ThemedText>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.card}>
         <ThemedText style={styles.cardTitle}>Aviso legal</ThemedText>
         <ThemedText style={styles.cardText}>
           Esta aplicación utiliza datos de geolocalización del dispositivo
@@ -134,19 +117,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#212121",
     paddingHorizontal: 16,
     paddingTop: 16,
+    marginTop: 120,
   },
   header: {
     alignItems: "center",
     marginBottom: 24,
   },
   iconContainer: {
-    width: 72,
-    height: 72,
+    width: 92,
+    height: 92,
     borderRadius: 20,
-    backgroundColor: "#10a37f",
+    backgroundColor: "#1059a3ff",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
   },
   appName: {
     fontSize: 24,

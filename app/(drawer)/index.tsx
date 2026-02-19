@@ -20,12 +20,6 @@ function AntennaCard({
 }) {
   return (
     <View style={styles.card}>
-      <View
-        style={[
-          styles.antennaIndicator,
-          { backgroundColor: ANTENNA_COLORS[index] },
-        ]}
-      />
       <View style={styles.antennaContent}>
         <View style={styles.antennaHeader}>
           <MaterialCommunityIcons
@@ -200,7 +194,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <View style={{ height: 30 }} />
+      <View style={{ height: 60 }} />
     </ScrollView>
   );
 }
@@ -211,6 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#212121",
     paddingHorizontal: 16,
     paddingTop: 8,
+    marginTop: 120,
   },
   errorContainer: {
     flexDirection: "row",
@@ -309,11 +304,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 10,
     color: "#ececf1",
-  },
-  antennaIndicator: {
-    width: 4,
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
   },
   antennaContent: {
     flex: 1,

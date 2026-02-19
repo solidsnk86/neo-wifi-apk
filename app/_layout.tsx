@@ -3,8 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
-/** Tema oscuro estilo ChatGPT */
-const ChatGPTDark = {
+const StyleDark = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
@@ -23,7 +22,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider value={ChatGPTDark}>
+    <ThemeProvider value={StyleDark}>
       <Stack>
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen
