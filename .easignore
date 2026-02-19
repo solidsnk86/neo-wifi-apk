@@ -1,0 +1,20 @@
+# EAS Build - ignorar archivos innecesarios
+node_modules/
+.expo/
+dist/
+web-build/
+.git/
+.github/
+.vscode/
+*.md
+*.tsbuildinfo
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env*.local
+app-example/
+fn.js
+scripts/
+AppData/
