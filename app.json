@@ -17,6 +17,11 @@
         "backgroundColor": "#171717",
         "foregroundImage": "./assets/images/neo-wifi-logo.png"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
