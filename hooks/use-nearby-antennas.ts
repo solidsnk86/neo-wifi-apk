@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { useMemo } from 'react'
 
-import { Coords, LocalAntenna } from "@/app/types/definitions";
-import allAntennas from "@/data/wifi-v15.json";
+import { Coords, LocalAntenna } from '@/app/types/definitions'
+import allAntennas from '@/data/wifi-v15.json'
 
-const MAX_NEARBY = 50;
+const MAX_NEARBY = 50
 
 /**
  * Fórmula de Haversine: distancia en km entre dos puntos (lat, lon).
@@ -14,14 +14,14 @@ function haversineKm(
   lat2: number,
   lon2: number,
 ): number {
-  const R = 6371; // Radio de la Tierra en km
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+  const R = 6371 // Radio de la Tierra en km
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
 /**
@@ -34,19 +34,19 @@ function haversineKm(
  */
 export function useNearbyAntennas(coords?: Coords): LocalAntenna[] {
   return useMemo(() => {
-    if (!coords) return [];
+    if (!coords) return []
 
-    const { latitude, longitude } = coords;
+    const { latitude, longitude } = coords
 
     // Bounding-box rápido: ±1° ≈ 111 km
-    const delta = 1;
+    const delta = 1
     const candidates = (allAntennas as LocalAntenna[]).filter(
       (a) =>
         a.lat >= latitude - delta &&
         a.lat <= latitude + delta &&
         a.lon >= longitude - delta &&
         a.lon <= longitude + delta,
-    );
+    )
 
     // Si hay pocas candidatas en 1°, expandimos a 3° (~333 km)
     const pool =
@@ -58,7 +58,7 @@ export function useNearbyAntennas(coords?: Coords): LocalAntenna[] {
               a.lon >= longitude - 3 &&
               a.lon <= longitude + 3,
           )
-        : candidates;
+        : candidates
 
     // Calcular distancia real y ordenar
     return pool
@@ -68,6 +68,6 @@ export function useNearbyAntennas(coords?: Coords): LocalAntenna[] {
       }))
       .sort((a, b) => a._dist - b._dist)
       .slice(0, MAX_NEARBY)
-      .map(({ _dist, ...antenna }) => antenna);
-  }, [coords]);
+      .map(({ _dist, ...antenna }) => antenna)
+  }, [coords])
 }
