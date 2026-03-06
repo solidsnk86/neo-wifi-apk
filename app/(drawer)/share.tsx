@@ -11,10 +11,14 @@ import {
 
 import { WifiAntenna } from '@/app/types/definitions'
 import { ThemedText } from '@/components/themed-text'
+import { Colors } from '@/constants/theme'
+import { useAppTheme } from '@/hooks/use-app-theme'
 import { useLocation } from '@/hooks/use-location'
 import { useWifiLocation } from '@/hooks/use-wifi-location'
 
 export default function ShareScreen() {
+  const { theme } = useAppTheme()
+  const colors = Colors[theme]
   const headerHeight = useHeaderHeight()
   const { coords } = useLocation()
   const location = useWifiLocation(coords)
@@ -111,11 +115,11 @@ export default function ShareScreen() {
 
   return (
     <ScrollView
-      style={[styles.screen, { paddingTop: headerHeight + 16 }]}
+      style={[styles.screen, { paddingTop: headerHeight + 12, backgroundColor: colors.background }]}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 152 }}
+      contentContainerStyle={{ paddingBottom: 100 }}
     >
-      <View style={styles.heroCard}>
+      <View style={[styles.heroCard, { borderColor: colors.border }]}>
         <View style={styles.heroIcon}>
           <MaterialCommunityIcons name="share-variant" size={28} color="#fff" />
         </View>
@@ -127,7 +131,7 @@ export default function ShareScreen() {
 
       {/* Compartir ubicación completa */}
       <TouchableOpacity
-        style={styles.shareButton}
+        style={[styles.shareButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
         onPress={shareLocation}
         activeOpacity={0.7}
       >
@@ -151,7 +155,7 @@ export default function ShareScreen() {
 
       {/* Compartir link Google Maps */}
       <TouchableOpacity
-        style={styles.shareButton}
+        style={[styles.shareButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
         onPress={shareGoogleMapsLink}
         activeOpacity={0.7}
       >
@@ -180,7 +184,7 @@ export default function ShareScreen() {
           {antennas.map((antenna, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.shareButton}
+              style={[styles.shareButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => shareAntenna(index)}
               activeOpacity={0.7}
             >
@@ -225,7 +229,6 @@ export default function ShareScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#212121',
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -252,11 +255,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 6,
-    color: '#ececf1',
   },
   heroSubtitle: {
     fontSize: 13,
-    color: '#8e8ea0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -265,9 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#2f2f2f',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
     marginBottom: 10,
     gap: 12,
   },
@@ -284,11 +283,9 @@ const styles = StyleSheet.create({
   shareTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ececf1',
   },
   shareDesc: {
     fontSize: 12,
-    color: '#8e8ea0',
     marginTop: 2,
   },
   sectionTitle: {
@@ -297,7 +294,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
     marginBottom: 10,
     marginLeft: 4,
-    color: '#ececf1',
   },
   loadingCard: {
     flexDirection: 'row',

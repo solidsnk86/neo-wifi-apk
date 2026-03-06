@@ -1,16 +1,24 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useHeaderHeight } from '@react-navigation/elements'
-import { Image, ScrollView, StyleSheet, View } from 'react-native'
+import { useState } from 'react'
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 import { ThemedText } from '@/components/themed-text'
+import { Colors } from '@/constants/theme'
+import { useAppTheme } from '@/hooks/use-app-theme'
+import { LinearGradient } from 'expo-linear-gradient'
 
 export default function AboutScreen() {
+  const { theme } = useAppTheme()
+  const colors = Colors[theme]
   const headerHeight = useHeaderHeight()
+  const [legalOpen, setLegalOpen] = useState(false)
+
   return (
     <ScrollView
-      style={[styles.screen, { paddingTop: headerHeight + 16 }]}
+      style={[styles.screen, { paddingTop: headerHeight + 12, backgroundColor: colors.background }]}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 188 }}
+      contentContainerStyle={{ paddingBottom: 200 }}
     >
       <View style={styles.header}>
         <View style={styles.iconContainer}>
@@ -22,9 +30,9 @@ export default function AboutScreen() {
         <ThemedText style={styles.version}>Versión 1.0.0</ThemedText>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <ThemedText style={styles.cardTitle}>¿Qué es Neo WiFi?</ThemedText>
-        <ThemedText style={styles.cardText}>
+        <ThemedText style={[styles.cardText, { color: colors.secondaryText }]}>
           Neo WiFi es una aplicación que detecta tu ubicación y te muestra las
           tres antenas WiFi públicas más cercanas utilizando el cálculo de
           distancia Haversine. Visualiza las antenas en un mapa interactivo con
@@ -32,7 +40,7 @@ export default function AboutScreen() {
         </ThemedText>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <ThemedText style={styles.cardTitle}>Funcionalidades</ThemedText>
         {[
           {
@@ -70,6 +78,11 @@ export default function AboutScreen() {
             color: '#06b6d4',
             text: 'Base de datos local con 5080 antenas WiFi',
           },
+          {
+            icon: 'music' as const,
+            color: '#2f06d4',
+            text: 'Reproductor de música mp3 local',
+          },
         ].map((feature, index) => (
           <View key={index} style={styles.featureRow}>
             <View
@@ -81,30 +94,45 @@ export default function AboutScreen() {
                 color="#fff"
               />
             </View>
-            <ThemedText style={styles.featureText}>{feature.text}</ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.text }]}>{feature.text}</ThemedText>
           </View>
         ))}
       </View>
 
-      <View style={styles.card}>
-        <ThemedText style={styles.cardTitle}>Aviso legal</ThemedText>
-        <ThemedText style={styles.cardText}>
-          Esta aplicación utiliza datos de geolocalización del dispositivo
-          exclusivamente para mostrar las antenas WiFi más cercanas. No se
-          almacena ni se comparte información personal del usuario.
-        </ThemedText>
-        <ThemedText style={[styles.cardText, { marginTop: 8 }]}>
-          Los datos de antenas WiFi son proporcionados por una API personal y
-          pueden no reflejar la cantidad de usuarios en tiempo real.
-        </ThemedText>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Pressable
+          onPress={() => setLegalOpen((v) => !v)}
+          style={styles.accordionHeader}
+        >
+          <ThemedText style={styles.cardTitle}>Aviso legal</ThemedText>
+          <MaterialCommunityIcons
+            name={legalOpen ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={colors.secondaryText}
+          />
+        </Pressable>
+        {legalOpen && (
+          <View style={styles.accordionBody}>
+            <ThemedText style={[styles.cardText, { color: colors.secondaryText }]}>
+              Esta aplicación utiliza datos de geolocalización del dispositivo
+              exclusivamente para mostrar las antenas WiFi más cercanas. No se
+              almacena ni se comparte información personal del usuario.
+            </ThemedText>
+            <ThemedText style={[styles.cardText, { marginTop: 8, color: colors.secondaryText }]}>
+              Los datos de antenas WiFi son proporcionados por una API personal y
+              pueden no reflejar la cantidad de usuarios en tiempo real.
+            </ThemedText>
+          </View>
+        )}
       </View>
 
-      <View style={styles.card}>
+      <LinearGradient colors={theme === 'dark' ? ['#2f2f2f', '#1c1c1c'] : ['#e8e8e8', '#ddd']} style={[styles.card, { borderColor: colors.border }]}>
+        <View style={styles.effect}></View>
         <ThemedText style={styles.cardTitle}>Créditos</ThemedText>
-        <ThemedText style={styles.cardText}>
-          Desarrollado por Gabriel Calcagni.
+        <ThemedText style={[styles.cardText, { color: colors.secondaryText }]}>
+          Desarrollador Gabriel Calcagni @solidsnk86.
         </ThemedText>
-      </View>
+      </LinearGradient>
 
       <ThemedText style={styles.footer}>
         © {new Date().getFullYear()} Neo WiFi. Todos los derechos reservados.
@@ -116,7 +144,6 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#212121',
     paddingHorizontal: 16,
     paddingBlock: 24
   },
@@ -145,18 +172,24 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   card: {
-    backgroundColor: '#2f2f2f',
     padding: 18,
     borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    overflow: "hidden"
   },
   cardTitle: {
     fontSize: 15,
     fontWeight: '700',
     marginBottom: 10,
-    color: '#ececf1',
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  accordionBody: {
+    marginTop: 8,
   },
   cardText: {
     fontSize: 14,
@@ -180,7 +213,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     flex: 1,
     fontWeight: '500',
-    color: '#d1d5db',
   },
   techGrid: {
     flexDirection: 'row',
@@ -204,4 +236,11 @@ const styles = StyleSheet.create({
     color: '#565869',
     marginTop: 20,
   },
+  effect: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  }
 })

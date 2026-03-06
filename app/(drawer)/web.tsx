@@ -1,9 +1,12 @@
 import { ThemedView } from '@/components/themed-view'
+import { Colors } from '@/constants/theme'
+import { useAppTheme } from '@/hooks/use-app-theme'
 import { MediaAsset, useFileSystem } from '@/hooks/use-file-system'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio'
 import { LinearGradient } from 'expo-linear-gradient'
+import * as MediaLibrary from 'expo-media-library'
 import { useState } from 'react'
 import {
   FlatList,
@@ -67,14 +70,19 @@ function ProgressBar({
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function MusicPlayer() {
+  const { theme } = useAppTheme()
+  const colors = Colors[theme]
   const headerHeight = useHeaderHeight()
-  const { loading, getMediaAssets } = useFileSystem()
+  const { loading, getMediaAssets, getAudioAlbums, getAssetsByAlbum } = useFileSystem()
 
+  const [albums, setAlbums] = useState<MediaLibrary.Album[]>([])
   const [queue, setQueue] = useState<MediaAsset[]>([])
   const [queueIndex, setQueueIndex] = useState(0)
   const [shuffle, setShuffle] = useState(false)
   const [repeat, setRepeat] = useState(false)
-  const [showLibrary, setShowLibrary] = useState(true)
+  // 'home' | 'folders' | 'tracks'
+  const [view, setView] = useState<'home' | 'folders' | 'tracks'>('home')
+  const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(null)
 
   const current = queue[queueIndex] ?? null
 
@@ -85,11 +93,20 @@ export default function MusicPlayer() {
   const position = status.currentTime ?? 0
   const progress = duration > 0 ? position / duration : 0
 
-  // Cargar biblioteca
-  const loadLibrary = async () => {
-    const assets = await getMediaAssets('audio', 100)
+  // Abrir selector de carpetas
+  const openFolderPicker = async () => {
+    const list = await getAudioAlbums()
+    setAlbums(list)
+    setView('folders')
+  }
+
+  // Cargar canciones de una carpeta seleccionada
+  const loadFromAlbum = async (album: MediaLibrary.Album) => {
+    setSelectedAlbum(album)
+    const assets = await getAssetsByAlbum(album)
     setQueue(assets)
-    setShowLibrary(false)
+    setQueueIndex(0)
+    setView('tracks')
   }
 
   // Reproducir canción por índice
@@ -130,10 +147,13 @@ export default function MusicPlayer() {
   }
 
   return (
-    <ThemedView style={[styles.screen, { paddingTop: headerHeight }]}>
+    <ThemedView style={[styles.screen, { paddingTop: headerHeight + 8, backgroundColor: colors.background }]}>
 
       {/* ── Player card ── */}
-      <LinearGradient colors={['#1a1a2e', '#121212']} style={styles.playerCard}>
+      <LinearGradient
+        colors={theme === 'dark' ? ['#1a1a2e', '#121212'] : ['#e8efe8', '#d5ddd5']}
+        style={styles.playerCard}
+      >
         {/* Album art */}
         <View style={styles.artWrapper}>
           <AlbumArt size={200} />
@@ -141,10 +161,10 @@ export default function MusicPlayer() {
 
         {/* Info */}
         <View style={styles.songInfo}>
-          <Text style={styles.songTitle} numberOfLines={1}>
+          <Text style={[styles.songTitle, { color: colors.text }]} numberOfLines={1}>
             {current ? current.filename.replace(/\.[^.]+$/, '') : 'Sin canción'}
           </Text>
-          <Text style={styles.songArtist} numberOfLines={1}>
+          <Text style={[styles.songArtist, { color: colors.secondaryText }]} numberOfLines={1}>
             {current ? 'Música local' : 'Abrí tu biblioteca'}
           </Text>
         </View>
@@ -169,7 +189,7 @@ export default function MusicPlayer() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={playPrev} style={styles.controlBtn}>
-            <Ionicons name="play-skip-back" size={28} color="#fff" />
+            <Ionicons name="play-skip-back" size={28} color={colors.text} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={togglePlay} style={styles.playBtn}>
@@ -181,7 +201,7 @@ export default function MusicPlayer() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={playNext} style={styles.controlBtn}>
-            <Ionicons name="play-skip-forward" size={28} color="#fff" />
+            <Ionicons name="play-skip-forward" size={28} color={colors.text} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => setRepeat(!repeat)} style={styles.controlBtn}>
@@ -195,19 +215,58 @@ export default function MusicPlayer() {
       </LinearGradient>
 
       {/* ── Library ── */}
-      {showLibrary ? (
-        <TouchableOpacity style={styles.openLibBtn} onPress={loadLibrary}>
-          <MaterialCommunityIcons name="music-box-multiple" size={20} color="#1DB954" />
-          <Text style={styles.openLibText}>Abrir biblioteca de audio</Text>
+      {view === 'home' && (
+        <TouchableOpacity style={[styles.openLibBtn, { backgroundColor: colors.card, borderColor: colors.accent + '40' }]} onPress={openFolderPicker}>
+          <MaterialCommunityIcons name="folder-music" size={22} color="#1DB954" />
+          <Text style={[styles.openLibText, { color: colors.text }]}>Elegir carpeta de música</Text>
         </TouchableOpacity>
-      ) : (
+      )}
+
+      {view === 'folders' && (
+        <FlatList
+          data={albums}
+          keyExtractor={(item) => item.id}
+          style={styles.list}
+          contentContainerStyle={{ paddingBottom: 84 }}
+          ListHeaderComponent={
+            <Text style={[styles.listHeader, { color: colors.secondaryText }]}>CARPETAS · {albums.length} encontradas</Text>
+          }
+          ListEmptyComponent={
+            <Text style={[styles.emptyText, { color: colors.secondaryText }]}>No se encontraron carpetas con audio.</Text>
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.folderRow, { borderBottomColor: colors.border }]}
+              onPress={() => loadFromAlbum(item)}
+            >
+              <MaterialCommunityIcons name="folder-music-outline" size={22} color="#1DB954" />
+              <View style={styles.folderInfo}>
+                <Text style={[styles.folderName, { color: colors.text }]} numberOfLines={1}>{item.title}</Text>
+                <Text style={[styles.folderCount, { color: colors.secondaryText }]}>{item.assetCount} canciones</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={colors.secondaryText} />
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
+      {view === 'tracks' && (
         <FlatList
           data={queue}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 64 }}
+          contentContainerStyle={{ paddingBottom: 84 }}
           style={styles.list}
           ListHeaderComponent={
-            <Text style={styles.listHeader}>BIBLIOTECA · {queue.length} canciones</Text>
+            <View style={styles.tracksHeader}>
+              <TouchableOpacity onPress={() => setView('folders')} style={styles.backBtn}>
+                <MaterialCommunityIcons name="arrow-left" size={18} color={colors.text} />
+              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.listHeader, { color: colors.secondaryText, marginBottom: 0 }]}>
+                  {selectedAlbum?.title ?? 'Carpeta'} · {queue.length} canciones
+                </Text>
+              </View>
+            </View>
           }
           renderItem={({ item, index }) => {
             const isActive = index === queueIndex
@@ -220,18 +279,18 @@ export default function MusicPlayer() {
                   {isActive && status.playing ? (
                     <Ionicons name="volume-high" size={14} color="#1DB954" />
                   ) : (
-                    <Text style={[styles.trackNumText, isActive && { color: '#1DB954' }]}>
+                    <Text style={[styles.trackNumText, { color: colors.secondaryText }, isActive && { color: '#1DB954' }]}>
                       {index + 1}
                     </Text>
                   )}
                 </View>
                 <Text
-                  style={[styles.trackName, isActive && { color: '#1DB954' }]}
+                  style={[styles.trackName, { color: colors.text }, isActive && { color: '#1DB954' }]}
                   numberOfLines={1}
                 >
                   {item.filename.replace(/\.[^.]+$/, '')}
                 </Text>
-                <Text style={styles.trackDuration}>{formatTime(item.duration)}</Text>
+                <Text style={[styles.trackDuration, { color: colors.secondaryText }]}>{formatTime(item.duration)}</Text>
               </TouchableOpacity>
             )
           }}
@@ -244,7 +303,7 @@ export default function MusicPlayer() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#121212',
+
   },
 
   // Player
@@ -363,16 +422,51 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
+  folderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 12,
+  },
+  folderInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  folderName: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  folderCount: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  tracksHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  backBtn: {
+    padding: 6,
+    borderRadius: 8,
+  },
+  emptyText: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 24,
+  },
   list: {
     flex: 1,
     marginTop: 8,
     paddingHorizontal: 16,
   },
   listHeader: {
-    color: '#b3b3b3',
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 1.2,
+    letterSpacing: 1.5,
     marginBottom: 8,
     marginTop: 4,
   },
@@ -380,7 +474,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
     borderRadius: 8,
     gap: 12,
   },
@@ -402,7 +496,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   trackDuration: {
-    color: '#b3b3b3',
     fontSize: 12,
   },
 })

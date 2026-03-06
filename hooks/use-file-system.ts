@@ -153,6 +153,50 @@ export const useFileSystem = () => {
   }
 
   /**
+   * Devuelve todos los álbumes/carpetas que contienen audio.
+   */
+  const getAudioAlbums = async (): Promise<MediaLibrary.Album[]> => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync()
+      if (status !== 'granted') {
+        setError(new Error('Permiso de media denegado'))
+        return []
+      }
+      const albums = await MediaLibrary.getAlbumsAsync({ includeSmartAlbums: false })
+      return albums
+    } catch (err) {
+      setError(err as Error)
+      return []
+    }
+  }
+
+  /**
+   * Devuelve los assets de audio de un álbum específico.
+   */
+  const getAssetsByAlbum = async (album: MediaLibrary.Album, first = 500): Promise<MediaAsset[]> => {
+    try {
+      const { assets } = await MediaLibrary.getAssetsAsync({
+        mediaType: MediaLibrary.MediaType.audio,
+        album,
+        first,
+        sortBy: MediaLibrary.SortBy.default,
+      })
+      return assets.map((a) => ({
+        id: a.id,
+        filename: a.filename,
+        uri: a.uri,
+        mediaType: a.mediaType,
+        duration: a.duration,
+        width: a.width,
+        height: a.height,
+      }))
+    } catch (err) {
+      setError(err as Error)
+      return []
+    }
+  }
+
+  /**
    * Lee el contenido de un asset de medios como string (útil para archivos de texto/JSON).
    * Para imágenes/audio usa directamente el `uri` del asset.
    *
@@ -175,5 +219,5 @@ export const useFileSystem = () => {
     }
   }
 
-  return { file, loading, error, pickFile, writeFile, listFiles, getMediaAssets, readMediaAsset }
+  return { file, loading, error, pickFile, writeFile, listFiles, getMediaAssets, readMediaAsset, getAudioAlbums, getAssetsByAlbum }
 }

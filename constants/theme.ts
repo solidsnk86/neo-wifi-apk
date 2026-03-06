@@ -10,17 +10,21 @@ const tintColorDark = '#10a37f'
 
 export const Colors = {
   light: {
-    text: '#d1d5db',
-    background: '#212121',
+    text: '#111111',
+    background: '#f5f5f5',
     tint: tintColorLight,
-    icon: '#8e8ea0',
-    tabIconDefault: '#8e8ea0',
+    icon: '#687076',
+    tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    card: '#2f2f2f',
-    border: 'rgba(255,255,255,0.08)',
-    secondaryText: '#8e8ea0',
-    surface: '#303030',
+    card: '#ffffff',
+    border: 'rgba(0,0,0,0.08)',
+    secondaryText: '#687076',
+    surface: '#e8e8e8',
     accent: '#10a37f',
+    headerBg: 'rgba(245,245,245,0.85)',
+    tabBarBg: 'rgba(245,245,245,0.85)',
+    tabInactive: '#999',
+    blurTint: 'light' as const,
   },
   dark: {
     text: '#ececf1',
@@ -34,6 +38,10 @@ export const Colors = {
     secondaryText: '#8e8ea0',
     surface: '#2f2f2f',
     accent: '#10a37f',
+    headerBg: 'rgba(18,18,18,0.85)',
+    tabBarBg: 'rgba(18,18,18,0.75)',
+    tabInactive: '#666',
+    blurTint: 'dark' as const,
   },
 }
 

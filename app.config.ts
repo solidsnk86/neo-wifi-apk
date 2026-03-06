@@ -3,7 +3,7 @@ import { ConfigContext, ExpoConfig } from 'expo/config'
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'neo-wifi-apk',
+  name: 'Neo WiFi',
   slug: 'neo-wifi-apk',
   version: '2.0.0',
   orientation: 'portrait',

@@ -6,6 +6,8 @@ import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { WifiAntenna } from '@/app/types/definitions'
 import Map from '@/components/Map'
 import { ThemedText } from '@/components/themed-text'
+import { Colors } from '@/constants/theme'
+import { useAppTheme } from '@/hooks/use-app-theme'
 import { useLocation } from '@/hooks/use-location'
 import { useNearbyAntennas } from '@/hooks/use-nearby-antennas'
 import { useWifiLocation } from '@/hooks/use-wifi-location'
@@ -16,48 +18,68 @@ const ANTENNA_LABELS = ['Más cercana', '2ª más cercana', '3ª más cercana']
 function AntennaCard({
   antenna,
   index,
+  colors,
 }: {
   antenna: WifiAntenna
   index: number
+  colors: (typeof Colors)['dark'] | (typeof Colors)['light']
 }) {
+  const accentColor = ANTENNA_COLORS[index]
+
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
       <View style={styles.antennaContent}>
-        <View style={styles.antennaHeader}>
-          <MaterialCommunityIcons
-            name="wifi"
-            size={14}
-            color={ANTENNA_COLORS[index]}
-          />
-          <ThemedText style={styles.antennaLabel}>
+        {/* Badge de prioridad */}
+        <View style={[styles.badge, { backgroundColor: accentColor + '22' }]}>
+          <MaterialCommunityIcons name="wifi" size={13} color={accentColor} />
+          <ThemedText style={[styles.badgeText, { color: accentColor }]}>
             {ANTENNA_LABELS[index]}
           </ThemedText>
         </View>
-        <ThemedText style={styles.antennaName}>{antenna.antenna}</ThemedText>
-        <View style={styles.antennaDetails}>
-          <View style={styles.detailChip}>
-            <MaterialCommunityIcons
-              name="map-marker-distance"
-              size={11}
-              color="#8e8ea0"
-            />
-            <ThemedText style={styles.detailText}>
-              {antenna.distance}
-            </ThemedText>
+
+        {/* Nombre de la antena */}
+        <ThemedText style={[styles.antennaName, { color: colors.text }]} numberOfLines={2}>
+          {antenna.antenna}
+        </ThemedText>
+
+        {/* Divider */}
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+        {/* Stats */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <View style={[styles.statIconBox, { backgroundColor: colors.border }]}>
+              <MaterialCommunityIcons name="map-marker-distance" size={16} color={accentColor} />
+            </View>
+            <View style={styles.statTextBox}>
+              <ThemedText style={[styles.statLabel, { color: colors.secondaryText }]}>Distancia</ThemedText>
+              <ThemedText style={[styles.statValue, { color: colors.text }]} numberOfLines={1}>{antenna.distance}</ThemedText>
+            </View>
           </View>
-          <View style={styles.detailChip}>
-            <MaterialCommunityIcons name="antenna" size={11} color="#8e8ea0" />
-            <ThemedText style={styles.detailText}>{antenna.type}</ThemedText>
+
+          <View style={styles.statItem}>
+            <View style={[styles.statIconBox, { backgroundColor: colors.border }]}>
+              <MaterialCommunityIcons name="antenna" size={16} color={accentColor} />
+            </View>
+            <View style={styles.statTextBox}>
+              <ThemedText style={[styles.statLabel, { color: colors.secondaryText }]}>Tipo</ThemedText>
+              <ThemedText style={[styles.statValue, { color: colors.text }]} numberOfLines={1}>{antenna.type}</ThemedText>
+            </View>
           </View>
-          <View style={styles.detailChip}>
-            <MaterialCommunityIcons
-              name="account-group"
-              size={11}
-              color="#8e8ea0"
-            />
-            <ThemedText style={styles.detailText}>
-              {antenna.users} usuarios
-            </ThemedText>
+
+          <View style={styles.statItem}>
+            <View style={[styles.statIconBox, { backgroundColor: colors.border }]}>
+              <MaterialCommunityIcons name="account-group" size={16} color={accentColor} />
+            </View>
+            <View style={styles.statTextBox}>
+              <ThemedText style={[styles.statLabel, { color: colors.secondaryText }]}>Usuarios</ThemedText>
+              <ThemedText style={[styles.statValue, { color: colors.text }]} numberOfLines={1}>{antenna.users}</ThemedText>
+            </View>
           </View>
         </View>
       </View>
@@ -66,6 +88,8 @@ function AntennaCard({
 }
 
 export default function HomeScreen() {
+  const { theme } = useAppTheme()
+  const colors = Colors[theme]
   const headerHeight = useHeaderHeight()
   const { coords, error } = useLocation()
   const location = useWifiLocation(coords)
@@ -82,8 +106,8 @@ export default function HomeScreen() {
   return (
     <ScrollView
       ref={scrollRef}
-      style={[styles.screen, { paddingTop: headerHeight + 8 }]}
-      contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 180 : 120 }}
+      style={[styles.screen, { paddingTop: headerHeight + 12, backgroundColor: colors.background }]}
+      contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 200 : 100 }}
       showsVerticalScrollIndicator={false}
       scrollEnabled={!mapTouched}
       nestedScrollEnabled
@@ -113,7 +137,7 @@ export default function HomeScreen() {
 
       {/* Tarjeta de ubicación */}
       {location && (
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.locationRow}>
             <View style={styles.locationIconBox}>
               <MaterialCommunityIcons
@@ -123,31 +147,31 @@ export default function HomeScreen() {
               />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.locationTitle}>
+              <ThemedText style={[styles.locationTitle, { color: colors.text }]}>
                 {location.city}, {location.state}
               </ThemedText>
-              <ThemedText style={styles.secondaryText}>
+              <ThemedText style={[styles.secondaryText, { color: colors.secondaryText }]}>
                 {location.country} · {location.departament}
               </ThemedText>
             </View>
           </View>
 
-          <View style={styles.coordsRow}>
+          <View style={[styles.coordsRow, { backgroundColor: colors.border }]}>
             <View style={styles.coordItem}>
               <ThemedText style={styles.coordLabel}>Latitud</ThemedText>
-              <ThemedText style={styles.coordValue}>
+              <ThemedText style={[styles.coordValue, { color: colors.text }]}>
                 {location.current_position?.latitude?.toFixed(4) ?? '—'}
               </ThemedText>
             </View>
             <View style={styles.coordItem}>
               <ThemedText style={styles.coordLabel}>Longitud</ThemedText>
-              <ThemedText style={styles.coordValue}>
+              <ThemedText style={[styles.coordValue, { color: colors.text }]}>
                 {location.current_position?.longitude?.toFixed(4) ?? '—'}
               </ThemedText>
             </View>
             <View style={styles.coordItem}>
               <ThemedText style={styles.coordLabel}>Al centro</ThemedText>
-              <ThemedText style={styles.coordValue}>
+              <ThemedText style={[styles.coordValue, { color: colors.text }]}>
                 {location.center_distance}
               </ThemedText>
             </View>
@@ -157,7 +181,7 @@ export default function HomeScreen() {
 
       {/* Aeropuerto más cercano */}
       {location?.airport_location && (
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.locationRow}>
             <View
               style={[styles.locationIconBox, { backgroundColor: '#FF9800' }]}
@@ -165,13 +189,13 @@ export default function HomeScreen() {
               <MaterialCommunityIcons name="airplane" size={18} color="#fff" />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.chipLabel}>
+              <ThemedText style={[styles.chipLabel, { color: colors.secondaryText }]}>
                 Aeropuerto más cercano
               </ThemedText>
               <ThemedText style={styles.antennaName}>
                 {location.airport_location.closest_airport.airport}
               </ThemedText>
-              <ThemedText style={styles.secondaryText}>
+              <ThemedText style={[styles.secondaryText, { color: colors.secondaryText }]}>
                 {location.airport_location.city},{' '}
                 {location.airport_location.country} ·{' '}
                 {location.airport_location.closest_airport.distance}
@@ -188,7 +212,7 @@ export default function HomeScreen() {
             Antenas detectadas
           </ThemedText>
           {antennas.map((antenna, index) => (
-            <AntennaCard key={index} antenna={antenna} index={index} />
+            <AntennaCard key={index} antenna={antenna} index={index} colors={colors} />
           ))}
         </View>
       )}
@@ -205,7 +229,7 @@ export default function HomeScreen() {
             <ThemedText style={styles.loadingTitle}>
               Buscando señal...
             </ThemedText>
-            <ThemedText style={styles.secondaryText}>
+            <ThemedText style={[styles.secondaryText, { color: colors.secondaryText }]}>
               Obteniendo tu ubicación y antenas cercanas
             </ThemedText>
           </View>
@@ -219,7 +243,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#212121',
     paddingHorizontal: 16,
   },
   errorContainer: {
@@ -239,22 +262,79 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoCard: {
-    backgroundColor: '#2f2f2f',
     borderRadius: 14,
     padding: 16,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
   },
   card: {
-    backgroundColor: '#2f2f2f',
-    borderRadius: 14,
-    padding: 16,
+    borderRadius: 16,
     marginTop: 10,
-    marginBottom: 16,
+    marginBottom: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
     flexDirection: 'row',
+    overflow: 'hidden',
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 12,
+    borderRadius: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 0,
+  },
+  statIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  statValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  statDivider: {
+    width: 1,
+    height: 32,
+    marginHorizontal: 4,
+  },
+  statTextBox: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     overflow: 'hidden',
   },
   locationRow: {
@@ -273,11 +353,9 @@ const styles = StyleSheet.create({
   locationTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ececf1',
   },
   secondaryText: {
     fontSize: 12,
-    color: '#8e8ea0',
     marginTop: 2,
   },
   coordsRow: {
@@ -303,12 +381,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     marginTop: 4,
-    color: '#ececf1',
   },
   chipLabel: {
     fontSize: 10,
     textTransform: 'uppercase',
-    color: '#8e8ea0',
     fontWeight: '700',
     letterSpacing: 0.5,
   },
@@ -319,49 +395,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     marginBottom: 10,
-    color: '#ececf1',
   },
   antennaContent: {
     flex: 1,
-    padding: 14,
-  },
-  antennaHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
-  },
-  antennaLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    color: '#8e8ea0',
-    letterSpacing: 0.5,
+    padding: 16,
   },
   antennaName: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#ececf1',
-  },
-  antennaDetails: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  detailChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  detailText: {
-    fontSize: 11,
-    color: '#8e8ea0',
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '700',
+    lineHeight: 22,
+    marginBottom: 0,
   },
   loadingCard: {
     flexDirection: 'row',
@@ -377,6 +420,5 @@ const styles = StyleSheet.create({
   loadingTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ececf1',
   },
 })

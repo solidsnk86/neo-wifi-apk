@@ -1,11 +1,12 @@
 import {
-  Coords,
-  GeolocationResponse,
-  LocalAntenna,
-  WifiAntenna,
+    Coords,
+    GeolocationResponse,
+    LocalAntenna,
+    WifiAntenna,
 } from '@/app/types/definitions'
+import { useCompass } from '@/hooks/use-compass'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 // Colores para las 3 antenas de la API
@@ -170,6 +171,47 @@ interface MapProps {
   localAntennas?: LocalAntenna[]
 }
 
+// ─── Compass widget ────────────────────────────────────────────────────────────
+function CompassWidget({ heading, cardinal }: { heading: number; cardinal: string }) {
+  const rotateAnim = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    Animated.timing(rotateAnim, {
+      toValue: heading,
+      duration: 250,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start()
+  }, [heading])
+
+  // Interpolar para que la aguja apunte al norte (rota inversamente)
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '-360deg'],
+  })
+
+  return (
+    <View style={styles.compassContainer}>
+      <View style={styles.compassRing}>
+        <Animated.View style={[styles.compassNeedle, { transform: [{ rotate }] }]}>
+          {/* Aguja norte (roja) */}
+          <View style={styles.needleNorth} />
+          {/* Aguja sur (gris) */}
+          <View style={styles.needleSouth} />
+          {/* Punto central */}
+          <View style={styles.needleCenter} />
+        </Animated.View>
+        {/* Letras cardinales */}
+        <Text style={[styles.compassLetter, styles.compassN]}>N</Text>
+        <Text style={[styles.compassLetter, styles.compassE]}>E</Text>
+        <Text style={[styles.compassLetter, styles.compassS]}>S</Text>
+        <Text style={[styles.compassLetter, styles.compassW]}>O</Text>
+      </View>
+      <Text style={styles.compassDeg}>{heading}° {cardinal}</Text>
+    </View>
+  )
+}
+
 export default function Map({
   userCoords,
   wifiData,
@@ -179,6 +221,7 @@ export default function Map({
   const hasFlown = useRef(false)
   const webViewReady = useRef(false)
   const [mapStyle, setMapStyle] = useState<MapStyleKey>('calles')
+  const { heading, cardinal, available: compassAvailable } = useCompass()
 
   const apiAntennas = useMemo(
     () =>
@@ -323,6 +366,11 @@ export default function Map({
           </View>
         ))}
       </View>
+
+      {/* Brújula */}
+      {compassAvailable && (
+        <CompassWidget heading={heading} cardinal={cardinal} />
+      )}
     </View>
   )
 }
@@ -401,5 +449,73 @@ const styles = StyleSheet.create({
   },
   switchTextActive: {
     color: '#fff',
+  },
+  // ── Brújula ──
+  compassContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    alignItems: 'center',
+    zIndex: 30,
+  },
+  compassRing: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compassNeedle: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  needleNorth: {
+    position: 'absolute',
+    top: 4,
+    width: 3,
+    height: 16,
+    backgroundColor: '#ef4444',
+    borderRadius: 2,
+    alignSelf: 'center',
+  },
+  needleSouth: {
+    position: 'absolute',
+    bottom: 4,
+    width: 3,
+    height: 16,
+    backgroundColor: '#999',
+    borderRadius: 2,
+    alignSelf: 'center',
+  },
+  needleCenter: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    zIndex: 2,
+  },
+  compassLetter: {
+    position: 'absolute',
+    fontSize: 7,
+    fontWeight: '800',
+    color: 'rgba(255,255,255,0.6)',
+  },
+  compassN: { top: 2, alignSelf: 'center' },
+  compassE: { right: 4, top: '50%', marginTop: -5 },
+  compassS: { bottom: 2, alignSelf: 'center' },
+  compassW: { left: 4, top: '50%', marginTop: -5 },
+  compassDeg: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 3,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 })
