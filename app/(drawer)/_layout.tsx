@@ -1,210 +1,127 @@
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { BlurView } from 'expo-blur'
-import { Drawer } from 'expo-router/drawer'
+import { Tabs } from 'expo-router'
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 
-import {
-  DrawerContentComponentProps,
-  DrawerContentScrollView,
-  DrawerItemList,
-} from '@react-navigation/drawer'
-import {
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
-
-function CustomDrawerContent(props: DrawerContentComponentProps) {
-  return (
-    <DrawerContentScrollView
-      {...props}
-      style={styles.drawerScroll}
-      contentContainerStyle={{ paddingTop: 50 }}
-    >
-      {/* Header */}
-      <View style={styles.drawerHeader}>
-        <View style={styles.drawerIconBox}>
-          <Image
-            source={require('../../assets/images/neo-wifi-logo.png')}
-            style={{ width: 45, height: 45 }}
-          />
-        </View>
-        <View>
-          <Text style={styles.drawerTitle}>Neo WiFi</Text>
-          <Text style={styles.drawerSubtitle}>Localizador de antenas</Text>
-        </View>
-      </View>
-
-      <View style={styles.separator} />
-
-      <DrawerItemList {...props} />
-
-      {/* Footer */}
-      <View style={styles.drawerFooter}>
-        <View style={styles.separator} />
-        <Text style={styles.footerText}>v1.0.0 · Neo WiFi</Text>
-      </View>
-    </DrawerContentScrollView>
-  )
+// ─── Custom Bottom Tab Bar ─────────────────────────────────────────────────────
+const TAB_ICONS: Record<string, string> = {
+  index: 'home',
+  explore: 'information',
+  share: 'share-variant',
+  web: 'music',
 }
 
-export default function DrawerLayout() {
+function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={({ navigation }) => ({
-          headerShown: true,
-          headerTransparent: true,
-          headerTintColor: '#ececf1',
-          headerTitleStyle: {
-            fontWeight: '600',
-            fontSize: 17,
-            color: '#ececf1',
-          },
-          // Fondo con efecto Blur (vidrio esmerilado)
-          headerBackground: () =>
-            Platform.OS === 'ios' ? (
-              <BlurView
-                tint="dark"
-                intensity={60}
-                style={StyleSheet.absoluteFill}
-              />
-            ) : (
-              <BlurView
-                tint="dark"
-                intensity={80}
-                style={StyleSheet.absoluteFill}
-              />
-            ),
-          // Icono del menú personalizado
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.toggleDrawer()}
-              style={{ marginLeft: 16 }}
-            >
-              <MaterialCommunityIcons name="text" size={28} color="#ececf1" />
-            </TouchableOpacity>
-          ),
-          drawerActiveTintColor: '#175fb2ff',
-          drawerInactiveTintColor: '#8e8ea0',
-          drawerActiveBackgroundColor: 'rgba(24, 51, 184, 0.12)',
-          drawerLabelStyle: {
-            fontSize: 15,
-            fontWeight: '500',
-            marginLeft: -8,
-          },
-          drawerItemStyle: {
-            borderRadius: 10,
-            paddingVertical: 2,
-            marginHorizontal: 8,
-          },
-          drawerStyle: {
-            backgroundColor: '#171717',
-            width: 280,
-          },
-        })}
+    <View style={styles.tabBarWrapper}>
+      <BlurView
+        tint="dark"
+        intensity={Platform.OS === 'ios' ? 60 : 90}
+        style={styles.tabBar}
       >
-        <Drawer.Screen
-          name="index"
-          options={{
-            title: 'Inicio',
-            drawerIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="home" size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="explore"
-          options={{
-            title: 'Acerca de',
-            drawerIcon: ({ color, size }) => (
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key]
+          const isFocused = state.index === index
+          const iconName = TAB_ICONS[route.name] ?? 'circle'
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            })
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name)
+            }
+          }
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={onPress}
+              style={styles.tabItem}
+              activeOpacity={0.7}
+            >
+              {/* Píldora activa */}
+              {isFocused && <View style={styles.activePill} />}
+
               <MaterialCommunityIcons
-                name="information"
-                size={size}
-                color={color}
+                name={iconName as any}
+                size={26}
+                color={isFocused ? '#fff' : '#555'}
               />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="share"
-          options={{
-            title: 'Compartir',
-            drawerIcon: ({ color, size }) => (
-              <MaterialCommunityIcons
-                name="share-variant"
-                size={size}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="web"
-          options={{
-            title: 'Sitio Web',
-            drawerIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="earth" size={size} color={color} />
-            ),
-          }}
-        />
-      </Drawer>
-    </GestureHandlerRootView>
+            </TouchableOpacity>
+          )
+        })}
+      </BlurView>
+    </View>
   )
 }
 
+// ─── Layout ────────────────────────────────────────────────────────────────────
+export default function TabLayout() {
+  return (
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={({ navigation: _nav }) => ({
+        headerShown: false,
+        headerTransparent: true,
+        headerTintColor: '#ececf1',
+        headerTitleStyle: {
+          fontWeight: '600',
+          fontSize: 17,
+          color: '#ececf1',
+        },
+        headerBackground: () =>
+          Platform.OS === 'ios' ? (
+            <BlurView tint="dark" intensity={60} style={StyleSheet.absoluteFill} />
+          ) : (
+            <BlurView tint="dark" intensity={80} style={StyleSheet.absoluteFill} />
+          ),
+      })}
+    >
+      <Tabs.Screen name="index"   options={{ title: 'Inicio' }} />
+      <Tabs.Screen name="explore" options={{ title: 'Acerca de' }} />
+      <Tabs.Screen name="share"   options={{ title: 'Compartir' }} />
+      <Tabs.Screen name="web"     options={{ title: 'Reproductor' }} />
+    </Tabs>
+  )
+}
+
+// ─── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  drawerScroll: {
-    flex: 1,
-    backgroundColor: '#171717',
-  },
-  drawerHeader: {
-    flexDirection: 'row',
+  tabBarWrapper: {
+    position: 'absolute',
+    bottom: 44,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 20,
+    paddingTop: 240
   },
-  drawerIconBox: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: '#1059a3ff',
+  tabBar: {
+    flexDirection: 'row',
+    overflow: 'hidden',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(18,18,18,0.6)',
+    width: '100%',
+  },
+  tabItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 8,
+    position: 'relative',
   },
-  drawerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ececf1',
-    letterSpacing: 0.3,
-  },
-  drawerSubtitle: {
-    fontSize: 12,
-    color: '#8e8ea0',
-    marginTop: 2,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    marginHorizontal: 16,
-    marginVertical: 8,
-  },
-  drawerFooter: {
-    marginTop: 'auto',
-    paddingBottom: 20,
-    paddingTop: 12,
-  },
-  footerText: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: '#565869',
-    marginTop: 12,
+  activePill: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
 })
+

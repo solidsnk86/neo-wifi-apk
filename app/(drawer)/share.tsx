@@ -113,7 +113,7 @@ export default function ShareScreen() {
     <ScrollView
       style={[styles.screen, { paddingTop: headerHeight + 16 }]}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 32 }}
+      contentContainerStyle={{ paddingBottom: 152 }}
     >
       <View style={styles.heroCard}>
         <View style={styles.heroIcon}>

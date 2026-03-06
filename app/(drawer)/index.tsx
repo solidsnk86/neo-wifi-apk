@@ -83,7 +83,7 @@ export default function HomeScreen() {
     <ScrollView
       ref={scrollRef}
       style={[styles.screen, { paddingTop: headerHeight + 8 }]}
-      contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 140 : 120 }}
+      contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 180 : 120 }}
       showsVerticalScrollIndicator={false}
       scrollEnabled={!mapTouched}
       nestedScrollEnabled

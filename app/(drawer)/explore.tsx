@@ -10,7 +10,7 @@ export default function AboutScreen() {
     <ScrollView
       style={[styles.screen, { paddingTop: headerHeight + 16 }]}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 32 }}
+      contentContainerStyle={{ paddingBottom: 188 }}
     >
       <View style={styles.header}>
         <View style={styles.iconContainer}>
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#212121',
     paddingHorizontal: 16,
+    paddingBlock: 24
   },
   header: {
     alignItems: 'center',
