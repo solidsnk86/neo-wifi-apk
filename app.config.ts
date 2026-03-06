@@ -13,6 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
+    bundleIdentifier: 'com.neocalcagni.neowifi',
   },
   android: {
     package: 'com.neocalcagni.neowifi',
