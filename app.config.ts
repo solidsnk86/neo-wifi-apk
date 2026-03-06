@@ -1,13 +1,11 @@
 import 'dotenv/config'
 import { ConfigContext, ExpoConfig } from 'expo/config'
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY ?? ''
-
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'neo-wifi-apk',
   slug: 'neo-wifi-apk',
-  version: '1.0.0',
+  version: '2.0.0',
   orientation: 'portrait',
   icon: './assets/images/neo-wifi-logo.png',
   scheme: 'neowifiapk',
@@ -21,11 +19,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       backgroundColor: '#171717',
       foregroundImage: './assets/images/neo-wifi-logo.png',
-    },
-    config: {
-      googleMaps: {
-        apiKey: GOOGLE_MAPS_API_KEY,
-      },
     },
     edgeToEdgeEnabled: true,
     permissions: [

@@ -1,12 +1,14 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useHeaderHeight } from '@react-navigation/elements'
 import { Image, ScrollView, StyleSheet, View } from 'react-native'
 
 import { ThemedText } from '@/components/themed-text'
 
 export default function AboutScreen() {
+  const headerHeight = useHeaderHeight()
   return (
     <ScrollView
-      style={styles.screen}
+      style={[styles.screen, { paddingTop: headerHeight + 16 }]}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 32 }}
     >
@@ -116,8 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#212121',
     paddingHorizontal: 16,
-    paddingTop: 16,
-    marginTop: 120,
   },
   header: {
     alignItems: 'center',

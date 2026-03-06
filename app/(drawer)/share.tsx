@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useHeaderHeight } from '@react-navigation/elements'
 import {
   Alert,
   ScrollView,
@@ -14,6 +15,7 @@ import { useLocation } from '@/hooks/use-location'
 import { useWifiLocation } from '@/hooks/use-wifi-location'
 
 export default function ShareScreen() {
+  const headerHeight = useHeaderHeight()
   const { coords } = useLocation()
   const location = useWifiLocation(coords)
 
@@ -109,7 +111,7 @@ export default function ShareScreen() {
 
   return (
     <ScrollView
-      style={styles.screen}
+      style={[styles.screen, { paddingTop: headerHeight + 16 }]}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 32 }}
     >

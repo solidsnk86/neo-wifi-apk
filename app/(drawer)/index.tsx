@@ -1,5 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { useHeaderHeight } from '@react-navigation/elements'
+import { useRef, useState } from 'react'
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 
 import { WifiAntenna } from '@/app/types/definitions'
 import Map from '@/components/Map'
@@ -64,9 +66,12 @@ function AntennaCard({
 }
 
 export default function HomeScreen() {
+  const headerHeight = useHeaderHeight()
   const { coords, error } = useLocation()
   const location = useWifiLocation(coords)
   const nearbyAntennas = useNearbyAntennas(coords)
+  const [mapTouched, setMapTouched] = useState(false)
+  const scrollRef = useRef<ScrollView>(null)
 
   const antennas = [
     location?.closest_wifi,
@@ -75,7 +80,14 @@ export default function HomeScreen() {
   ].filter(Boolean) as WifiAntenna[]
 
   return (
-    <ScrollView style={styles.screen} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      ref={scrollRef}
+      style={[styles.screen, { paddingTop: headerHeight + 8 }]}
+      contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 140 : 120 }}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={!mapTouched}
+      nestedScrollEnabled
+    >
       {error && (
         <View style={styles.errorContainer}>
           <MaterialCommunityIcons
@@ -87,11 +99,17 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <Map
-        userCoords={coords}
-        wifiData={location}
-        localAntennas={nearbyAntennas}
-      />
+      <View
+        onTouchStart={() => setMapTouched(true)}
+        onTouchEnd={() => setMapTouched(false)}
+        onTouchCancel={() => setMapTouched(false)}
+      >
+        <Map
+          userCoords={coords}
+          wifiData={location}
+          localAntennas={nearbyAntennas}
+        />
+      </View>
 
       {/* Tarjeta de ubicación */}
       {location && (
@@ -194,7 +212,6 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <View style={{ height: 60 }} />
     </ScrollView>
   )
 }
@@ -204,8 +221,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#212121',
     paddingHorizontal: 16,
-    paddingTop: 8,
-    marginTop: 120,
   },
   errorContainer: {
     flexDirection: 'row',
@@ -236,6 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     marginTop: 10,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
     flexDirection: 'row',
