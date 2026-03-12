@@ -6,7 +6,7 @@
 
 ## ¿Qué problema resuelve?
 
-Encontrar WiFi pública disponible cerca tuyo puede ser una tarea frustrante. Neo WiFi elimina esa fricción: compara tu posición GPS contra una base de datos de **5 080 antenas** y calcula con precisión geodésica (fórmula de Haversine) cuáles son las más próximas, mostrándote el resultado en segundos.
+Encontrar WiFi pública disponible cerca tuyo puede ser una tarea frustrante. Neo WiFi compara tu posición GPS contra una base de datos de **5 080 antenas** y calcula con precisión geodésica (fórmula de Haversine) cuáles son las más próximas, mostrándote el resultado en segundos.
 
 ---
 
