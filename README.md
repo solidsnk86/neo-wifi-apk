@@ -1,50 +1,50 @@
-# Welcome to your Expo app 👋
+# Neo WiFi 🛜
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Neo WiFi** es una aplicación móvil que, al abrirla, te dice al instante cuáles son las tres antenas WiFi públicas más cercanas a donde estás parado. Sin buscar nada, sin escribir nada: solo abrís la app y ella hace el resto.
 
-## Get started
+---
 
-1. Install dependencies
+## ¿Qué problema resuelve?
 
-   ```bash
-   npm install
-   ```
+Encontrar WiFi pública disponible cerca tuyo puede ser una tarea frustrante. Neo WiFi elimina esa fricción: compara tu posición GPS contra una base de datos de **5 080 antenas** y calcula con precisión geodésica (fórmula de Haversine) cuáles son las más próximas, mostrándote el resultado en segundos.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## ¿Qué podés hacer con Neo WiFi?
 
-In the output, you'll find options to open the app in a
+### 📶 Encontrar WiFi cercana al instante
+La pantalla principal muestra las **tres antenas más cercanas** ordenadas por distancia. De cada una ves su nombre, el tipo de antena, la cantidad de usuarios que soporta y la distancia exacta desde donde estás. Todo actualizado en tiempo real a medida que te movés.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 🗺️ Ver las antenas en el mapa
+Un mapa interactivo marca tu posición y la ubicación de cada antena, unidas por líneas que te dan una idea visual inmediata de qué tan lejos están. Podés hacer zoom y explorar la zona como si fuera cualquier mapa que conocés.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### ✈️ Saber qué aeropuerto tenés cerca
+Además de las antenas WiFi, la app identifica el **aeropuerto más cercano** a tu ubicación, útil para orientarte geográficamente o planificar desplazamientos.
 
-## Get a fresh project
+### 📤 Compartir tu ubicación o los datos de una antena
+Con un toque podés enviar por WhatsApp, correo o cualquier otra app:
+- Tu posición actual con las antenas cercanas.
+- Los datos específicos de una antena (nombre, distancia, tipo, MAC, coordenadas).
 
-When you're ready, run:
+### 🎵 Reproductor de música local
+Neo WiFi incluye un reproductor de archivos MP3 almacenados en el dispositivo, con lista de canciones, barra de progreso interactiva, controles de reproducción y diseño inspirado en los reproductores modernos.
 
-```bash
-npm run reset-project
-```
+### 🌗 Se adapta a tu preferencia visual
+La interfaz respeta el tema del sistema: **modo oscuro o claro** de forma automática, sin configuración manual.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## ¿Cómo funciona por dentro?
 
-To learn more about developing your project with Expo, look at the following resources:
+Neo WiFi combina dos fuentes de información:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. **Base de datos local** — un dataset de 5 080 antenas WiFi embebido en la app. No necesita internet para calcular distancias.
+2. **API propia** — un servicio propio desarrollado en Node.js que, dado tu GPS, devuelve la ciudad, provincia, país y las antenas más cercanas con todos sus metadatos.
 
-## Join the community
+La distancia a cada antena se calcula con la **fórmula de Haversine**, que tiene en cuenta la curvatura de la Tierra para dar un resultado métrico real, no una aproximación plana.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Licencia
+
+Uso personal / educativo. Los datos de antenas WiFi pertenecen a sus respectivas fuentes públicas.
