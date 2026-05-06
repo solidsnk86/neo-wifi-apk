@@ -47,4 +47,4 @@ La distancia a cada antena se calcula con la **fórmula de Haversine**, que tien
 
 ## Licencia
 
-Uso personal / educativo. Los datos de antenas WiFi pertenecen a sus respectivas fuentes públicas y datos de recopicalación propia.
+Uso personal / educativo. Los datos de antenas WiFi pertenecen a sus respectivas fuentes públicas y datos de recopilación propia.
