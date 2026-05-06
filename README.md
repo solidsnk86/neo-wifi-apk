@@ -1,4 +1,4 @@
-# Neo WiFi 🛜
+# Neo WiFi 📡
 
 **Neo WiFi** es una aplicación móvil que, al abrirla, te dice al instante cuáles son las tres antenas WiFi públicas más cercanas a donde estás parado. Sin buscar nada, sin escribir nada: solo abrís la app y ella hace el resto.
 
